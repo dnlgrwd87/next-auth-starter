@@ -6,15 +6,13 @@ import { useSession } from 'next-auth/react';
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
-  const loggedInUser = session?.user;
+  const loggedInUser = session?.username;
 
   return (
     <Container>
       <Center mt={7}>
         {!!loggedInUser ? (
-          <pre style={{ fontSize: 12 }}>
-            {JSON.stringify(loggedInUser, null, 2)}
-          </pre>
+          <Text>Welcome, {loggedInUser}</Text>
         ) : (
           <Text>Log in to see your info</Text>
         )}

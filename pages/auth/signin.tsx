@@ -1,10 +1,33 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-import { Box, Button, Heading, Stack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  FormLabel,
+  Heading,
+  Input,
+  Stack,
+} from '@chakra-ui/react';
 import { GetServerSideProps } from 'next';
-import { getProviders, getSession, signIn } from 'next-auth/react';
+import { getSession, signIn } from 'next-auth/react';
+import Router from 'next/router';
 
-export default function SignIn({ providers }) {
+export default function SignIn() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  const login = async () => {
+    const res = await signIn('credentials', {
+      username,
+      password,
+      redirect: false,
+    });
+
+    if (res.url) {
+      Router.push(res.url);
+    }
+  };
+
   return (
     <>
       <Stack
@@ -23,23 +46,28 @@ export default function SignIn({ providers }) {
           borderColor="lightgray"
           boxShadow="lg"
         >
-          <Heading fontSize="x-large">Sign In</Heading>
-          {Object.values(providers).map((provider: any) => (
-            <Box p={6} key={provider.name}>
-              <Button
-                width="full"
-                mt={4}
-                bg="gray.500"
-                color="white"
-                _hover={{ bg: 'gray.400' }}
-                _active={{ bg: 'gray.500' }}
-                _focus={{ border: 'none' }}
-                onClick={() => signIn(provider.id)}
-              >
-                Continue with Google
-              </Button>
-            </Box>
-          ))}
+          <Heading mb={3} fontSize="x-large">
+            Sign In
+          </Heading>
+          <FormLabel>Username</FormLabel>
+          <Input mb={3} onChange={(e) => setUsername(e.target.value)} />
+          <FormLabel>Password</FormLabel>
+          <Input
+            type="password"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Button
+            width="full"
+            mt={7}
+            bg="gray.500"
+            color="white"
+            _hover={{ bg: 'gray.400' }}
+            _active={{ bg: 'gray.500' }}
+            _focus={{ border: 'none' }}
+            onClick={login}
+          >
+            Sign In
+          </Button>
         </Box>
       </Stack>
       ;
@@ -58,9 +86,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
 
-  const providers = await getProviders();
-
   return {
-    props: { providers },
+    props: {},
   };
 };
