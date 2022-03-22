@@ -3,16 +3,6 @@ import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import jwt_decode from 'jwt-decode';
 
-const login = async (credentials): Promise<any> => {
-  const { username, password } = credentials;
-  const url = 'http://localhost:8000/auth/login/';
-
-  try {
-    const response = await axios.post(url, { username, password });
-    return response.data;
-  } catch (e) {}
-};
-
 export default NextAuth({
   providers: [
     CredentialsProvider({
@@ -22,9 +12,15 @@ export default NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        const token = await login(credentials);
+        try {
+          const { username, password } = credentials;
+          const url = 'http://localhost:8000/auth/login/';
 
-        return token || null;
+          const response = await axios.post(url, { username, password });
+          return response.data;
+        } catch (error) {
+          return null;
+        }
       },
     }),
   ],
@@ -47,11 +43,11 @@ export default NextAuth({
       return session;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
-  session: {
-    jwt: true,
-  },
   pages: {
     signIn: '/auth/signin',
   },
+  session: {
+    jwt: true,
+  },
+  secret: process.env.NEXTAUTH_SECRET,
 });
